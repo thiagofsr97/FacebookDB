@@ -5,8 +5,8 @@ const moment = require('moment');
 const utils = require('./Utils');
 
 //------------------------------- Act of posting in user's mural----------------------------------------//
-router.post('/user/:id?/post',(req,res)=>{
-    const id_user = req.body.id_poster;
+router.post('/user/:id?/mural/post',(req,res)=>{
+    const id_user = req.body.user_id_poster;
     const id_user_mural = req.params.id;
     const visibility = req.body.visibility == 'public'? 1:0;
     const text = req.body.text;
@@ -17,48 +17,23 @@ router.post('/user/:id?/post',(req,res)=>{
 
 //------------------------------- Act of deleting a post in user's mural----------------------------------------//
 
-router.post('/user/:user_id?/post/:post_id?/delete',(req,res)=>{
-    const post_owner = req.body.post_owner;
-    var sqlQuery_1 = 'DELETE FROM Attachments WHERE '+
+router.post('/user/:user_id?/mural/post/:post_id?/delete',(req,res)=>{
+    const post_owner = req.body.user_id_poster;
+    const sqlQuery_1 = 'DELETE FROM Attachments WHERE '+
     `(Attachments.Post_idPost='${req.params.post_id}') AND (Attachments.Post_UserProfile_idUserProfile='${post_owner}');`;
-    var sqlQuery_2 = `DELETE FROM Post WHERE (Post.UserProfile_idUserProfile_postOwner = '${post_owner}') `+
+    const sqlQuery_3 = 'DELETE FROM Comments WHERE ' +
+    `(Post_UserProfile_idUserProfile_postOwner = '${post_owner}' AND Post_idPost = '${req.params.post_id}');`;
+    const sqlQuery_2 = 'DELETE FROM Responses WHERE ' +
+    `(Comments_Post_UserProfile_idUserProfile_postOwner = '${post_owner}' AND Comments_Post_idPost = '${req.params.post_id}');`;
+    const sqlQuery_4 = `DELETE FROM Post WHERE (Post.UserProfile_idUserProfile_postOwner = '${post_owner}') `+
     `AND (Post.UserProfileMural_idUserProfile = '${req.params.user_id}') AND (Post.idPost = '${req.params.post_id}');`;
 
-    connection.beginTransaction(function(err) {
-        if (err) { throw err; }
-        connection.query(sqlQuery_1, function(err, result) {
-          if (err) { 
-            connection.rollback(function() {
-                res.json(utils.jsonBuilder(err));
-                throw err;
-            });
-          }
-       
-          connection.query(sqlQuery_2,function(err, result) {
-            if (err) { 
-              connection.rollback(function() {
-                res.json(utils.jsonBuilder(err));
-                throw err;
-              });
-            }  
-            connection.commit(function(err) {
-              if (err) { 
-                connection.rollback(function() {
-                    res.json(utils.jsonBuilder(err));
-                    throw err;
-                });
-              }
-              res.json(utils.jsonBuilder(err));
-              console.log('Transaction Complete.');
-            });
-          });
-        });
-      });
+    utils.queryTransaction([sqlQuery_1,sqlQuery_2,sqlQuery_3,sqlQuery_4],res);
 });
 
   
 //------------------------------- Act of posting in group's mural----------------------------------------//
-router.post('/group/:id?/post',(req,res)=>{
+router.post('/group/:id?/mural/post',(req,res)=>{
     const id_user = req.body.id_poster;
     const id_group_mural = req.params.id;
     const visibility = req.body.visibility == 'public'? 1:0;
@@ -80,7 +55,7 @@ router.get('/user/:id?/allposts',(req,res)=>{
   
 
 //----------------------------Get posts from a user's mural -------------------------//
-router.get('/user/:mural_user_id?/posts',(req,res)=>{
+router.get('/user/:mural_user_id?/mural/posts',(req,res)=>{
     const mural_id = req.params.mural_user_id;
     sqlQuery = `SELECT Post.* FROM Post WHERE Post.UserProfileMural_idUserProfile = '${mural_id}' `+
     'ORDER BY Post.idPost DESC';
@@ -88,7 +63,7 @@ router.get('/user/:mural_user_id?/posts',(req,res)=>{
 })  
 
 //----------------------------Get posts from a group's mural -------------------------//
-router.get('/group/:mural_group_id?/posts',(req,res)=>{
+router.get('/group/:mural_group_id?/mural/posts',(req,res)=>{
     const mural_id = req.params.mural_group_id;
     sqlQuery = `SELECT Post.* FROM Post WHERE Post.GroupsMural_idGroups = '${mural_id}' `+
     'ORDER BY Post.idPost DESC';
@@ -99,11 +74,11 @@ router.get('/group/:mural_group_id?/posts',(req,res)=>{
   function doPost(location,id_user,id_mural,visibility,text,req,res){
     var sqlQuery = ''; 
     if(location == 'group'){
-        sqlQuery = 'INSERT INTO Post (Text, PostTime, NumberOfComments, Visibility, UserProfile_idUserProfile_postOwner,GroupsMural_idGroups) VALUES'
-    + `('${text}', '${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}','0', '${visibility}', '${id_user}','${id_mural}');`;
+        sqlQuery = 'INSERT INTO Post (Text, PostTime, NumberOfComments, Visibility, UserProfile_idUserProfile_postOwner,GroupsMural_idGroups,	NumberOfLikes) VALUES'
+    + `('${text}', '${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}','0', '${visibility}', '${id_user}','${id_mural}','0');`;
     }else{
-        sqlQuery = 'INSERT INTO Post (Text, PostTime, NumberOfComments, Visibility, UserProfile_idUserProfile_postOwner,UserProfileMural_idUserProfile) VALUES'
-    + `('${text}', '${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}','0', '${visibility}', '${id_user}','${id_mural}');`;
+        sqlQuery = 'INSERT INTO Post (Text, PostTime, NumberOfComments, Visibility, UserProfile_idUserProfile_postOwner,UserProfileMural_idUserProfile,	NumberOfLikes) VALUES'
+    + `('${text}', '${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}','0', '${visibility}', '${id_user}','${id_mural}','0');`;
     }
     connection.beginTransaction(function(err) {
         if (err) { throw err; }

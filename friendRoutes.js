@@ -85,49 +85,7 @@ router.post('/user/:current_user_id?/requests/accept',(req,res)=>{
     const sqlQuery_3 = 'DELETE FROM FriendRequest WHERE '+ 
     `(idUserProfile_1 = '${current_user_id}' AND idUserProfile_2 = '${user_friend_id}') OR (idUserProfile_1 = '${user_friend_id}' AND idUserProfile_2 = '${current_user_id}');`
 
-    connection.beginTransaction(function(err){
-        if(err){throw err;}
-        connection.query(sqlQuery_1,function(err,result){
-            if(err){
-                connection.rollback(function(){
-                    
-                    res.json(utils.jsonBuilder(err));
-                    throw err;
-
-                });
-            }
-            connection.query(sqlQuery_2,function(err,result){
-                if(err){
-                    connection.rollback(function(){
-                        res.json(utils.jsonBuilder(err));
-                        throw err;
-                    });
-                }
-
-                connection.query(sqlQuery_3,function(err,result){
-                    if(err){
-                        connection.rollback(function(){
-                            res.json(utils.jsonBuilder(err));
-                            throw err;
-                        });
-                    }
-
-                    connection.commit(function(err){
-                        if(err){
-                            connection.rollback(function(){
-                                res.json(utils.jsonBuilder(err));
-                                throw err;
-                            });
-                        }
-                        res.json(utils.jsonBuilder(err));
-                        console.log('Transaction Complete.');
-                    });
-
-                });
-
-            });            
-        });
-    });
+    utils.queryTransaction([sqlQuery_1,sqlQuery_2,sqlQuery_3],res);
 });
 
 //------------------------------ Denying a friend request from a user ---------------------//
@@ -151,37 +109,7 @@ router.post('/user/:id?/unfriend',(req,res)=>{
     const sqlQuery_2 = `UPDATE UserProfile SET NumberOfFriends = NumberOfFriends - 1 ` +
     `WHERE idUserProfile = '${current_user_id}' OR idUserProfile = '${unfriend_id}';`; 
 
-    connection.beginTransaction(function(err){
-        if(err){throw err;}
-        connection.query(sqlQuery_1,function(err,result){
-            if(err){
-                connection.rollback(function(){
-                    
-                    res.json(utils.jsonBuilder(err));
-                    throw err;
-
-                });
-            }
-            connection.query(sqlQuery_2,function(err,result){
-                if(err){
-                    connection.rollback(function(){
-                        res.json(utils.jsonBuilder(err));
-                        throw err;
-                    });
-                }
-                connection.commit(function(err){
-                    if(err){
-                        connection.rollback(function(){
-                            res.json(utils.jsonBuilder(err));
-                            throw err;
-                        });
-                    }
-                    res.json(utils.jsonBuilder(err));
-                    console.log('Transaction Complete.');
-                });
-            });            
-        });
-    });
+    utils.queryTransaction([sqlQuery_1,sqlQuery_2],res);
 
 })
 
@@ -195,50 +123,7 @@ router.post('/user/:id?/block',(req,res)=>{
     const sqlQuery_2 = `UPDATE UserProfile SET NumberOfFriends = NumberOfFriends - 1 ` +
     `WHERE idUserProfile = '${current_user_id}' OR idUserProfile = '${user_blocked}';`; 
     const sqlQuery_3 = `INSERT INTO BlockingUser (UserProfile_idUserProfile, UserProfile_idUserProfile1) VALUES ('${current_user_id}', '${user_blocked}');`;
-
-    connection.beginTransaction(function(err){
-        if(err){throw err;}
-        connection.query(sqlQuery_1,function(err,result){
-            if(err){
-                connection.rollback(function(){
-                    
-                    res.json(utils.jsonBuilder(err));
-                    throw err;
-
-                });
-            }
-            connection.query(sqlQuery_2,function(err,result){
-                if(err){
-                    connection.rollback(function(){
-                        res.json(utils.jsonBuilder(err));
-                        throw err;
-                    });
-                }
-
-                connection.query(sqlQuery_3,function(err,result){
-                    if(err){
-                        connection.rollback(function(){
-                            res.json(utils.jsonBuilder(err));
-                            throw err;
-                        });
-                    }
-
-                    connection.commit(function(err){
-                        if(err){
-                            connection.rollback(function(){
-                                res.json(utils.jsonBuilder(err));
-                                throw err;
-                            });
-                        }
-                        res.json(utils.jsonBuilder(err));
-                        console.log('Transaction Complete.');
-                    });
-
-                });
-
-            });            
-        });
-    });
+    utils.queryTransaction([sqlQuery_1,sqlQuery_2,sqlQuery_3],res);
 
 });
 

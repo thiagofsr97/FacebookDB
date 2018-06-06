@@ -53,51 +53,12 @@ router.post('/user/:id_user?/posts/:id_post?/comment',(req,res)=>{
     const post_id = req.params.id_post;
     const user_commenter_id = req.body.user_id;
     const comment = req.body.text;
-    var sqlQuery = `INSERT INTO Comments (NumberOfResponses, Post_idPost, Post_UserProfile_idUserProfile_postOwner, UserProfile_idUserProfile_commenter) VALUES ('0', '${post_id}', '${user_id}', '${user_commenter_id}');`
-    
-    connection.beginTransaction(function(err){
-        if(err){throw err;}
-        connection.query(sqlQuery,function(err,result){
-            if(err){
-                connection.rollback(function(){
-                    
-                    res.json(utils.jsonBuilder(err));
-                    throw err;
-
-                });
-            }
-            sqlQuery = 'UPDATE Post '+
+    const sqlQuery_1 = `INSERT INTO Comments (NumberOfResponses, Post_idPost, Post_UserProfile_idUserProfile_postOwner, UserProfile_idUserProfile_commenter) VALUES ('0', '${post_id}', '${user_id}', '${user_commenter_id}');`
+    const sqlQuery_2 = 'UPDATE Post '+
             'SET Post.NumberOfComments = Post.NumberOfComments + 1 ' +
             `WHERE (Post.idPost = ${post_id}) && (Post.UserProfile_idUserProfile_postOwner = '${user_id}');`
-            connection.query(sqlQuery,function(err,result){
-                if(err){
-                    connection.rollback(function(){
-                        res.json(utils.jsonBuilder(err));
-                        throw err;
-                    });
-                }
-
-            });
-
-            connection.commit(function(err){
-                if(err){
-                    connection.rollback(function(){
-                        res.json(utils.jsonBuilder(err));
-                        throw err;
-                    });
-                }
-                res.json(utils.jsonBuilder(err));
-                console.log('Transaction Complete.');
-            });
-        });
-
-
-
-
-
-
-
-    });
+    
+    utils.queryTransaction([sqlQuery_1,sqlQuery_2],res);
 
 
 });
