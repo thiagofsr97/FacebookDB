@@ -7,7 +7,7 @@ function querySQL(sqlQuery,res){
         res.json(json);
       }
       else{
-        res.json(results);
+        res.json(jsonBuilder(error));
       }
       
         console.log('Query executed...');
@@ -26,5 +26,4 @@ function jsonBuilder(err){
 module.exports={
     querySQL,
     jsonBuilder
-
 };

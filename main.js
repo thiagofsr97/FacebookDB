@@ -28,6 +28,7 @@ app.use('/', router);
 app.use(require('./groupRoutes'));
 app.use(require('./usersRoutes'));
 app.use(require('./postRoutes'));
+app.use(require('./friendRoutes'))
 app.listen(port);
 
   
