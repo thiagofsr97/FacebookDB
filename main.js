@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const port = 3000; //porta padrão
 const mysql = require('mysql');
 const moment = require('moment');
-var connection = require('../nodemysql/connection');
+var connection = require('./connection');
 
 connection.connect(function(err){
   if(err) return console.log(err);

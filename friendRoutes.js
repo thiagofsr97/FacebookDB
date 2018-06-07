@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var connection = require('../nodemysql/connection');
+var connection = require('./connection');
 const moment = require('moment');
 const utils = require('./Utils');
 

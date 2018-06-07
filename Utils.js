@@ -1,4 +1,4 @@
-var connection = require('../nodemysql/connection');
+var connection = require('./connection');
 
 function querySQL(sqlQuery,res){
     connection.query(sqlQuery,function(error,results,fields){
@@ -7,7 +7,7 @@ function querySQL(sqlQuery,res){
         res.json(json);
       }
       else{
-        res.json(jsonBuilder(error));
+        res.json(results);
       }
       
         console.log('Query executed...');
