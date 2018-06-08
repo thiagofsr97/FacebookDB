@@ -87,7 +87,7 @@ router.get('/group/:mural_group_id?/mural/posts',(req,res)=>{
 })
 
 //----------------------------Get posts from a user's feednews -------------------------//
-router.get('/user/:user_id?/feed',(req,res)=>{
+router.get('/user/:user_id?/feed',(req,res)=>{  
     const sqlQuery_1 = '(SELECT Post.* FROM Post ' +
     `INNER JOIN Friendship ON (Friendship.UserProfile_idUserProfile = '${req.params.user_id}') `+
     'WHERE (Friendship.UserProfile_idUserProfile1 = Post.UserProfile_idUserProfile_postOwner AND Post.UserProfileMural_idUserProfile = Post.UserProfile_idUserProfile_postOwner)) ';
@@ -155,8 +155,14 @@ router.get('/user/:user_id?/feed',(req,res)=>{
     });
   }
 
+//------------------------------- Change post's visibility in user's mural----------------------------------------//
 
-
+router.post('/user/:user_id?/mural/post/:post_id?/visibility',(req,res)=>{
+    const visibility = req.body.visibility == 'public'?1:0;
+    const post_owner = req.body.user_id_poster;
+    const sqlQuery = `UPDATE Post SET Visibility = '${visibility}' WHERE Post.idPost = '${req.params.post_id}' AND Post.UserProfileMural_idUserProfile = '${req.params.user_id}' AND Post.UserProfile_idUserProfile_postOwner = '${post_owner}';`
+    utils.querySQL(sqlQuery,res);
+});
 
 
   module.exports = router;

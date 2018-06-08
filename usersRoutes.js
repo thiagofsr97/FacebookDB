@@ -12,6 +12,11 @@ router.get('/users',(req,res) =>{
   } )
 
 
+//--------------------------------Get UserProfile information--------------------------//
+router.get('/user/:user_id?',(req,res)=>{
+    utils.querySQL(`SELECT * FROM UserProfile WHERE idUserProfile = '${req.params.user_id}';`,res);
+})
+
 //----------------------------------Create a new user in fb -------------------------//
 
 router.post('/user/signup',(req,res)=>{

@@ -29,6 +29,7 @@ app.use(require('./groupRoutes'));
 app.use(require('./usersRoutes'));
 app.use(require('./postRoutes'));
 app.use(require('./friendRoutes'))
+app.use(require('./commentRoutes'));
 app.listen(port);
 
   
