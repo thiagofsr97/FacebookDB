@@ -89,9 +89,58 @@ router.post('/group/:id?/request/cancel',(req,res)=>{
   utils.queryPost(sqlQuery,res);
 })
 
-//------------------------------- List pending request to participate in group ------------------ //
-  //------------------------ Get admins users from a group or all of the groups -----------------//
-//to do
+//------------------------------- List pending requests to participate in group ------------------ //
+
+router.get('/group/:id?/requests/pending',(req,res)=>{
+    const group_id = req.params.id;
+    const sqlQuery = 'SELECT UserProfile.*,DateRequest FROM RequestsGroupParticipation '+ 
+    `JOIN UserProfile ON RequestsGroupParticipation.UserProfile_idUserProfile = UserProfile.idUserProfile ` +
+    `WHERE Groups_idGroups = '${group_id}' AND Participation_Groups_idGroups IS NULL AND Participation_UserProfile_idUserProfile IS NULL;`;
+
+    utils.querySQL(sqlQuery,res);
+});
+//------------------------------- List accepted requests to participate in group ------------------ //
+
+router.get('/group/:id?/requests/accepted',(req,res)=>{
+  const group_id = req.params.id;
+  const sqlQuery = 'SELECT * FROM RequestsGroupParticipation '+ 
+  `WHERE Groups_idGroups = '${group_id}' AND Participation_Groups_idGroups IS NOT NULL AND Participation_UserProfile_idUserProfile IS NOT NULL;`;
+
+  utils.querySQL(sqlQuery,res);
+});
+
+
+//------------------------------Accepting a user in a group ----------------------------//
+router.post('/group/:id?/request/:user_id?/accept',(req,res)=>{
+  const group_id = req.params.id;
+  const user_id_accepted = req.params.user_id;
+  const user_admin_id = req.body.user_admin_id;
+
+  const sqlQuery_1 = `INSERT INTO Participation(Groups_idGroups, UserProfile_idUserProfile, IsAdmin, IsCreator) VALUES ` +
+  `('${group_id}','${user_id_accepted}','0','0');`
+  const sqlQuery_2 = `UPDATE Groups SET NumberOfMembers = NumberOfMembers + 1 WHERE idGroups = '${group_id}';`
+  const sqlQuery_3 = `UPDATE RequestsGroupParticipation SET Participation_Groups_idGroups = ${group_id}, `+
+  `Participation_UserProfile_idUserProfile = '${user_admin_id}' WHERE UserProfile_idUserProfile = '${user_id_accepted}' `+
+  `AND Groups_idGroups = '${group_id}';`;
+
+  utils.queryTransaction([sqlQuery_1,sqlQuery_2,sqlQuery_3],res);
+
+
+
+});
+
+//------------------------------Denying a user request in a group ----------------------------//
+router.get('/group/:id?/request/:user_id?/deny',(req,res)=>{
+  const group_id = req.params.id;
+  const user_id_denied = req.params.user_id;
+  const sqlQuery = `DELETE FROM RequestsGroupParticipation WHERE UserProfile_idUserProfile = '${user_id_denied}' `+
+  `AND Groups_idGroups = '${group_id}';`;
+
+  utils.queryPost(sqlQuery,res);
+
+
+
+});
 
 
   module.exports = router;
