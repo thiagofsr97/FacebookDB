@@ -1,10 +1,14 @@
 var connection = require('./connection');
-
+function queryPost(sqlQuery,res){
+  connection.query(sqlQuery,function(error,results,fields){
+      res.json(jsonBuilder(error));    
+      console.log('Query executed...');
+  });
+}
 function querySQL(sqlQuery,res){
     connection.query(sqlQuery,function(error,results,fields){
       if(error){
-        json = { success: false, message: 'database error',err:error};
-        res.json(json);
+        res.json(jsonBuilder(error));
       }
       else{
         res.json(results);
@@ -60,6 +64,7 @@ function partialQuery(queries,index,res){
 
 
 module.exports={
+    queryPost,
     querySQL,
     jsonBuilder,
     queryTransaction

@@ -26,14 +26,14 @@ router.post('/user/signup',(req,res)=>{
     const user_password = req.body.password;
 
     var sqlQuery = '';
-    if(req.body.user_profile_pic != undefined){
-        sqlQuery = 'INSERT INTO UserProfile (FirstName, LastName, Email, Password, ProfilePicture,NumberOfFriends) '+
-    `VALUES ('${user_first_name}', '${user_last_name}', '${user_email}', '${user_password}', '${req.body.user_profile_pic}', '0');`;
+    if(req.body.profile_pic != undefined){
+        sqlQuery = 'INSERT INTO UserProfile (FirstName, LastName, Email, Password, ProfilePicture,NumberOfFriends,Date) '+
+    `VALUES ('${user_first_name}', '${user_last_name}', '${user_email}', '${user_password}', '${req.body.profile_pic}', '0','${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}');`;
     }else{
-        sqlQuery = 'INSERT INTO UserProfile (FirstName, LastName, Email, Password, NumberOfFriends) '+
-    `VALUES ('${user_first_name}', '${user_last_name}', '${user_email}', '${user_password}', '0');`;
+        sqlQuery = 'INSERT INTO UserProfile (FirstName, LastName, Email, Password, NumberOfFriends,Date) '+
+    `VALUES ('${user_first_name}', '${user_last_name}', '${user_email}', '${user_password}', '0','${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}');`;
     }
-    utils.querySQL(sqlQuery,res);
+    utils.queryPost(sqlQuery,res);
 })
 
 
@@ -43,7 +43,7 @@ router.post('/user/:id?/update-profile',(req,res)=>{
     sqlQuery = 'UPDATE UserProfile ' +
     `SET UserProfile.ProfilePicture = '${req.body.profile_pic}' `+
     `WHERE UserProfile.idUserProfile = '${req.params.id}'`;
-    utils.querySQL(sqlQuery,res);
+    utils.queryPost(sqlQuery,res);
 
 })
 

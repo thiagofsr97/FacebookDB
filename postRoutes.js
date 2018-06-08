@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const connection = require('../nodemysql/connection');
+const connection = require('./connection');
 const moment = require('moment');
 const utils = require('./Utils');
 
@@ -13,41 +13,21 @@ router.post('/user/:id?/mural/post',(req,res)=>{
     
     doPost('users',id_user,id_user_mural,visibility,text,req,res);
   
-  })
+  });
 
-//------------------------------- Act of deleting a post in user's mural----------------------------------------//
+//------------------------------- Act of deleting a post ----------------------------------------//
 
-router.post('/user/:user_id?/mural/post/:post_id?/delete',(req,res)=>{
-    const post_owner = req.body.user_id_poster;
+router.post('/post/:post_id?/delete',(req,res)=>{
     const sqlQuery_1 = 'DELETE FROM Attachments WHERE '+
-    `(Attachments.Post_idPost='${req.params.post_id}') AND (Attachments.Post_UserProfile_idUserProfile='${post_owner}');`;
+    `(Attachments.Post_idPost='${req.params.post_id}');`;
     const sqlQuery_3 = 'DELETE FROM Comments WHERE ' +
-    `(Post_UserProfile_idUserProfile_postOwner = '${post_owner}' AND Post_idPost = '${req.params.post_id}');`;
+    `Post_idPost = '${req.params.post_id}';`;
     const sqlQuery_2 = 'DELETE FROM Responses WHERE ' +
-    `(Comments_Post_UserProfile_idUserProfile_postOwner = '${post_owner}' AND Comments_Post_idPost = '${req.params.post_id}');`;
-    const sqlQuery_4 = `DELETE FROM Post WHERE (Post.UserProfile_idUserProfile_postOwner = '${post_owner}') `+
-    `AND (Post.UserProfileMural_idUserProfile = '${req.params.user_id}') AND (Post.idPost = '${req.params.post_id}');`;
+    `(Comments_Post_idPost = '${req.params.post_id}');`;
+    const sqlQuery_4 = `DELETE FROM Post WHERE(Post.idPost = '${req.params.post_id}');`;
 
     utils.queryTransaction([sqlQuery_1,sqlQuery_2,sqlQuery_3,sqlQuery_4],res);
-});
-
-//------------------------------- Act of deleting a post in group's mural----------------------------------------//
-router.post('/group/:group_id?/mural/post/:post_id?/delete',(req,res)=>{
-    const post_owner = req.body.user_id_poster;
-    const sqlQuery_1 = 'DELETE FROM Attachments WHERE '+
-    `(Attachments.Post_idPost='${req.params.post_id}') AND (Attachments.Post_UserProfile_idUserProfile='${post_owner}');`;
-    const sqlQuery_3 = 'DELETE FROM Comments WHERE ' +
-    `(Post_UserProfile_idUserProfile_postOwner = '${post_owner}' AND Post_idPost = '${req.params.post_id}');`;
-    const sqlQuery_2 = 'DELETE FROM Responses WHERE ' +
-    `(Comments_Post_UserProfile_idUserProfile_postOwner = '${post_owner}' AND Comments_Post_idPost = '${req.params.post_id}');`;
-    const sqlQuery_4 = `DELETE FROM Post WHERE (Post.UserProfile_idUserProfile_postOwner = '${post_owner}') `+
-    `AND (Post.GroupsMural_idGroups = '${req.params.group_id}') AND (Post.idPost = '${req.params.post_id}');`;
-
-    utils.queryTransaction([sqlQuery_1,sqlQuery_2,sqlQuery_3,sqlQuery_4],res);
-});
-
-
-  
+});  
 //------------------------------- Act of posting in group's mural----------------------------------------//
 router.post('/group/:id?/mural/post',(req,res)=>{
     const id_user = req.body.id_poster;
@@ -157,11 +137,10 @@ router.get('/user/:user_id?/feed',(req,res)=>{
 
 //------------------------------- Change post's visibility in user's mural----------------------------------------//
 
-router.post('/user/:user_id?/mural/post/:post_id?/visibility',(req,res)=>{
+router.post('/post/:post_id?/visibility',(req,res)=>{
     const visibility = req.body.visibility == 'public'?1:0;
-    const post_owner = req.body.user_id_poster;
-    const sqlQuery = `UPDATE Post SET Visibility = '${visibility}' WHERE Post.idPost = '${req.params.post_id}' AND Post.UserProfileMural_idUserProfile = '${req.params.user_id}' AND Post.UserProfile_idUserProfile_postOwner = '${post_owner}';`
-    utils.querySQL(sqlQuery,res);
+    const sqlQuery = `UPDATE Post SET Visibility = '${visibility}' WHERE Post.idPost = '${req.params.post_id}';`
+    utils.queryPost(sqlQuery,res);
 });
 
 

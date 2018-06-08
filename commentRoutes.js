@@ -11,13 +11,24 @@ router.post('/post/:post_id?/comment',(req,res)=>{
     const post_owner = req.body.user_id_poster;
     const user_commenter_id = req.body.user_id_commenter;
     const comment = req.body.text;
-    const sqlQuery_1 = `INSERT INTO Comments (NumberOfResponses, Post_idPost, Post_UserProfile_idUserProfile_postOwner, UserProfile_idUserProfile_commenter) VALUES ('0', '${post_id}', '${post_owner}', '${user_commenter_id}');`
+    const sqlQuery_1 = `INSERT INTO Comments (NumberOfResponses, Post_idPost, Post_UserProfile_idUserProfile_postOwner, UserProfile_idUserProfile_commenter,CommentTime) VALUES ('0', '${post_id}', '${post_owner}', '${user_commenter_id}','${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}');`
     const sqlQuery_2 = 'UPDATE Post '+
             'SET Post.NumberOfComments = Post.NumberOfComments + 1 ' +
             `WHERE (Post.idPost = '${post_id}') AND (Post.UserProfile_idUserProfile_postOwner = '${post_owner}');`
     
     utils.queryTransaction([sqlQuery_1,sqlQuery_2],res);
 
+
+});
+
+// ----------------------------- Listing comments from a post-----------------------------------//
+
+router.get('/post/:post_id?/comments',(req,res)=>{
+    const post_id = req.params.post_id;
+    const sqlQuery = `SELECT * FROM Comments WHERE Post_idPost = '${post_id}' ` +
+    'ORDER BY idComments DESC';
+
+    utils.querySQL(sqlQuery,res);
 
 });
 
@@ -46,6 +57,25 @@ router.post('/post/:post_id?/comment/:comment_id/respond',(req,res)=>{
     const sqlQuery_2 = `UPDATE Comments SET NumberOfResponses = NumberOfResponses + 1 WHERE idComments = '${comment_id}';`
 
     utils.queryTransaction([sqlQuery_1,sqlQuery_2],res);
+});
+
+// ----------------------------- Listing responses from a comment-----------------------------------//
+
+router.get('/comments/:comment_id?/responses',(req,res)=>{
+    const comment_id = req.params.comment_id;
+    const sqlQuery = `SELECT * FROM Responses WHERE Comments_idComments = '${comment_id}' ` +
+    'ORDER BY idResponses DESC';
+    utils.querySQL(sqlQuery,res);
+
+});
+
+// ----------------------------- Listing responses from a post-----------------------------------//
+
+router.get('/comments/:comment_id?/responses',(req,res)=>{
+    const comment_id = req.params.comment_id;
+    const sqlQuery = `SELECT * FROM Responses WHERE Comments_idComments = '${comment_id}'`;
+    utils.querySQL(sqlQuery,res);
+
 });
 
 // ----------------------------- Deleting a comment on a post -----------------------------------//
