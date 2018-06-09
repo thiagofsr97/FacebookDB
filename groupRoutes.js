@@ -142,5 +142,18 @@ router.get('/group/:id?/request/:user_id?/deny',(req,res)=>{
 
 });
 
+//----------------------------------- Removing member of group ----------------------------//
+
+router.get('/group/:id?/member/:user_id?/remove',(req,res)=>{
+  const group_id = req.params.id;
+  const user_removed_id = req.params.user_id;
+
+  const sqlQuery_3 = `DELETE FROM Participation WHERE Groups_idGroups = '${group_id}' AND UserProfile_idUserProfile = '${user_removed_id}';`;
+  const sqlQuery_2 = `DELETE FROM RequestsGroupParticipation WHERE Groups_idGroups = '${group_id}' AND UserProfile_idUserProfile = '${user_removed_id}';`;
+  const sqlQuery_1 = `UPDATE Groups SET NumberOfMembers = NumberOfMembers - 1 WHERE idGroups = '${group_id}';`;
+
+  utils.queryTransaction([sqlQuery_1,sqlQuery_2,sqlQuery_3],res);
+});
+
 
   module.exports = router;
