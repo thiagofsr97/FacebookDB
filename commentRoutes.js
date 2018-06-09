@@ -11,7 +11,7 @@ router.post('/post/:post_id?/comment',(req,res)=>{
     const post_owner = req.body.user_id_poster;
     const user_commenter_id = req.body.user_id_commenter;
     const comment = req.body.text;
-    const sqlQuery_1 = `INSERT INTO Comments (NumberOfResponses, Post_idPost, Post_UserProfile_idUserProfile_postOwner, UserProfile_idUserProfile_commenter,CommentTime) VALUES ('0', '${post_id}', '${post_owner}', '${user_commenter_id}','${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}');`
+    const sqlQuery_1 = `INSERT INTO Comments (NumberOfResponses, Post_idPost, Post_UserProfile_idUserProfile_postOwner, UserProfile_idUserProfile_commenter,text,CommentTime) VALUES ('0', '${post_id}', '${post_owner}', '${user_commenter_id}','${comment}','${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}');`
     const sqlQuery_2 = 'UPDATE Post '+
             'SET Post.NumberOfComments = Post.NumberOfComments + 1 ' +
             `WHERE (Post.idPost = '${post_id}') AND (Post.UserProfile_idUserProfile_postOwner = '${post_owner}');`
