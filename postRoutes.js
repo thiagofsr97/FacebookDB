@@ -49,7 +49,11 @@ router.get('/user/:id?/allposts',(req,res)=>{
   })
   
   
-
+router.get('/post/:post_id?/attachments/',(req,res)=>{
+    const post_id = req.params.post_id;
+    const sqlQuery = `SELECT Type,Path FROM Attachments WHERE Post_idPost = '${post_id}';`;
+    utils.querySQL(sqlQuery,res);
+});
 //----------------------------Get posts from a user's mural -------------------------//
 router.get('/user/:mural_user_id?/mural/posts',(req,res)=>{
     const mural_id = req.params.mural_user_id;
