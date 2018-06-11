@@ -88,25 +88,24 @@ router.get('/user/:user_id?/feed',(req,res)=>{
 
 
   function doPost(location,id_user,id_mural,visibility,text,req,res){
-    const sqlQuery_1 = 'INSERT INTO Attachments (Type, Path)' +
-                `VALUES ('${req.body.attachment_type}','${req.body.attachment_path}')`;
+    
     var sqlQuery_2 = '';
     if(location == 'group'){
-    sqlQuery_2 = 'INSERT INTO Post (Text, PostTime, NumberOfComments, Visibility, UserProfile_idUserProfile_postOwner,GroupsMural_idGroups,	NumberOfLikes,Attachments_idAttachments) VALUES';
+    sqlQuery_2 = 'INSERT INTO Post (Text, PostTime, NumberOfComments, Visibility, UserProfile_idUserProfile_postOwner,GroupsMural_idGroups,	NumberOfLikes,Attachment_Path,Attachment_Type) VALUES';
     }else{
-        sqlQuery_2 = 'INSERT INTO Post (Text, PostTime, NumberOfComments, Visibility, UserProfile_idUserProfile_postOwner,UserProfileMural_idUserProfile,NumberOfLikes,Attachments_idAttachments) VALUES';    
+        sqlQuery_2 = 'INSERT INTO Post (Text, PostTime, NumberOfComments, Visibility, UserProfile_idUserProfile_postOwner,UserProfileMural_idUserProfile,NumberOfLikes,Attachment_Path,Attachment_Type) VALUES';    
     }
 
     if(req.body.attachment_path!=undefined && req.body.attachment_type!=undefined){
-        sqlQuery_2 += ` ('${text}', '${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}','0', '${visibility}', '${id_user}','${id_mural}','0',(SELECT MAX(Attachments.idAttachments) FROM Attachments));`;
-        utils.queryTransaction([sqlQuery_1,sqlQuery_2],res);
+        sqlQuery_2 += ` ('${text}', '${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}','0', '${visibility}', '${id_user}','${id_mural}','0','${req.body.attachment_path}','${req.body.attachment_type}');`;
+
     }
     else{
-        sqlQuery_2 += ` ('${text}', '${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}','0', '${visibility}', '${id_user}','${id_mural}','0',NULL);`
-        utils.queryPost(sqlQuery_2,res);
+        sqlQuery_2 += ` ('${text}', '${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}','0', '${visibility}', '${id_user}','${id_mural}','0',NULL,NULL);`
+        
     }
    
-    utils
+    utils.queryPost(sqlQuery_2,res);
   }
 
 //------------------------------- Change post's visibility in user's mural----------------------------------------//
