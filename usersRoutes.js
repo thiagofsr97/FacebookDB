@@ -47,6 +47,12 @@ router.post('/user/:id?/update-profile',(req,res)=>{
 
 })
 
-
+//----------------------------------- List groups of a user ----------------------------//
+router.get('/user/:id?/groups',(req,res)=>{
+    const sqlQuery = `SELECT Groups.* FROM Participation ` +
+    `JOIN Groups ON (Participation.Groups_idGroups = Groups.idGroups) `+
+    `WHERE Participation.UserProfile_idUserProfile = '${req.params.id}';`;
+    utils.querySQL(sqlQuery,res);
+});
 
   module.exports = router;

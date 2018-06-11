@@ -116,5 +116,14 @@ router.post('/post/:post_id?/visibility',(req,res)=>{
     utils.queryPost(sqlQuery,res);
 });
 
+router.get('/post/:post_id?/like',(req,res)=>{
+    const sqlQuery = `UPDATE Post SET NumberOfLikes = NumberOfLikes + 1 WHERE idPost = '${req.params.post_id}';`;
+    utils.queryPost(sqlQuery,res);
+});
+
+router.get('/post/:post_id?/dislike',(req,res)=>{
+    const sqlQuery = `UPDATE Post SET NumberOfLikes = NumberOfLikes - 1 WHERE idPost = '${req.params.post_id}';`;
+    utils.queryPost(sqlQuery,res);
+});
 
   module.exports = router;
