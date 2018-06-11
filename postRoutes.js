@@ -17,7 +17,7 @@ router.post('/user/:id?/mural/post',(req,res)=>{
 
 //------------------------------- Act of deleting a post ----------------------------------------//
 
-router.post('/post/:post_id?/delete',(req,res)=>{
+router.get('/post/:post_id?/delete',(req,res)=>{
     const sqlQuery_1 = 'DELETE FROM Attachments WHERE '+
     `(Attachments.Post_idPost='${req.params.post_id}');`;
     const sqlQuery_3 = 'DELETE FROM Comments WHERE ' +
