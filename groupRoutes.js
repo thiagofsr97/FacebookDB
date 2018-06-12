@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var connection = require('../nodemysql/connection');
+var connection = require('./connection');
 const moment = require('moment');
 const utils = require('./Utils');
 
@@ -17,13 +17,13 @@ router.post('/group/create',(req,res)=>{
   const group_description = req.body.description;
   const user_creator_id = req.body.user_creator_id;
   const isThereBg = req.body.bg_picture != undefined;
-  
-  const sqlQuery_1 = 'INSERT INTO Groups(DateCreation, Description, Name, NumberOfMembers' + (isThereBg?`,BackgroundPicture) `:`) `) + 
+
+  const sqlQuery_1 = 'INSERT INTO Groups(DateCreation, Description, Name, NumberOfMembers' + (isThereBg?`,BackgroundPicture) `:`) `) +
   `VALUES ('${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}','${group_description}','${group_name}','1'`+
   (isThereBg?`,'${req.body.bg_picture}') `:`);`);
   const sqlQuery_2 = 'INSERT INTO Participation(Groups_idGroups, UserProfile_idUserProfile, IsAdmin, IsCreator) VALUES '+
   `((SELECT MAX(Groups.idGroups) FROM Groups),'${user_creator_id}','1','1');`;
-  utils.queryTransaction([sqlQuery_1,sqlQuery_2],res);  
+  utils.queryTransaction([sqlQuery_1,sqlQuery_2],res);
 
 });
 
@@ -34,14 +34,14 @@ router.post('/group/:group_id?/update-bg',(req,res)=>{
   const sqlQuery = `UPDATE Groups SET BackgroundPicture = '${bg_picture}' WHERE idGroups = '${group_id}';`
   utils.queryPost(sqlQuery,res);
 });
-  
-  
+
+
 //--------------------------- Get users that participate of a given group -------------------------//
   router.get('/group/:id?/members',(req,res) =>{
     sqlQuery = 'SELECT UserProfile.* '+
     'FROM Participation ' +
     'JOIN UserProfile on UserProfile.idUserProfile = Participation.UserProfile_idUserProfile '+
-    'WHERE Participation.Groups_idGroups=' + req.params.id;      
+    'WHERE Participation.Groups_idGroups=' + req.params.id;
     utils.querySQL(sqlQuery,res);
   })
 
@@ -50,7 +50,7 @@ router.get('/group/:id?/admins',(req,res) =>{
   const sqlQuery = 'SELECT UserProfile.* '+
   'FROM Participation ' +
   'JOIN UserProfile on UserProfile.idUserProfile = Participation.UserProfile_idUserProfile '+
-  'WHERE Participation.Groups_idGroups=' + req.params.id + ` AND Participation.IsAdmin = '1'`;      
+  'WHERE Participation.Groups_idGroups=' + req.params.id + ` AND Participation.IsAdmin = '1'`;
   utils.querySQL(sqlQuery,res);
 })
 
@@ -93,7 +93,7 @@ router.post('/group/:id?/request/cancel',(req,res)=>{
 
 router.get('/group/:id?/requests/pending',(req,res)=>{
     const group_id = req.params.id;
-    const sqlQuery = 'SELECT UserProfile.*,DateRequest FROM RequestsGroupParticipation '+ 
+    const sqlQuery = 'SELECT UserProfile.*,DateRequest FROM RequestsGroupParticipation '+
     `JOIN UserProfile ON RequestsGroupParticipation.UserProfile_idUserProfile = UserProfile.idUserProfile ` +
     `WHERE Groups_idGroups = '${group_id}' AND Participation_Groups_idGroups IS NULL AND Participation_UserProfile_idUserProfile IS NULL;`;
 
@@ -103,7 +103,7 @@ router.get('/group/:id?/requests/pending',(req,res)=>{
 
 router.get('/group/:id?/requests/accepted',(req,res)=>{
   const group_id = req.params.id;
-  const sqlQuery = 'SELECT * FROM RequestsGroupParticipation '+ 
+  const sqlQuery = 'SELECT * FROM RequestsGroupParticipation '+
   `WHERE Groups_idGroups = '${group_id}' AND Participation_Groups_idGroups IS NOT NULL AND Participation_UserProfile_idUserProfile IS NOT NULL;`;
 
   utils.querySQL(sqlQuery,res);
