@@ -155,5 +155,18 @@ router.get('/group/:id?/member/:user_id?/remove',(req,res)=>{
   utils.queryTransaction([sqlQuery_1,sqlQuery_2,sqlQuery_3],res);
 });
 
+//----------------------------------- Blocking member of group ----------------------------//
+
+router.get('/group/:id?/member/:user_id?/block',(req,res)=>{
+  const group_id = req.params.id;
+  const user_blocked_id = req.params.user_id;
+  const sqlQuery_1 = 'INSERT INTO Blocked (Groups_idGroups, UserProfile_idUserProfile) VALUES '+ 
+  `('${group_id}', '${user_blocked_id}');`;
+  const sqlQuery_4 = `DELETE FROM Participation WHERE Groups_idGroups = '${group_id}' AND UserProfile_idUserProfile = '${user_blocked_id}';`;
+  const sqlQuery_3 = `DELETE FROM RequestsGroupParticipation WHERE Groups_idGroups = '${group_id}' AND UserProfile_idUserProfile = '${user_blocked_id}';`;
+  const sqlQuery_2 = `UPDATE Groups SET NumberOfMembers = NumberOfMembers - 1 WHERE idGroups = '${group_id}';`;
+
+  utils.queryTransaction([sqlQuery_1,sqlQuery_2,sqlQuery_3,sqlQuery_4],res);
+});
 
   module.exports = router;

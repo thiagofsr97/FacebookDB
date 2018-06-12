@@ -13,7 +13,7 @@ router.get('/users',(req,res) =>{
 
 
 
-//------------------------------- List users to a given user --------------------------//
+//------------------------------- List users to a given user except blocked --------------------------//
 
 router.get('/user/:user_id?/list/users',(req,res) =>{
     const sqlQuery = 'SELECT UserProfile.* FROM UserProfile '+
@@ -27,7 +27,18 @@ router.get('/user/:user_id?/list/users',(req,res) =>{
     utils.querySQL(sqlQuery,res);
   } );
 
+//------------------------------- List groups to a given user except blocked --------------------------//
 
+router.get('/user/:user_id?/list/groups',(req,res) =>{
+    const sqlQuery = 'SELECT Groups.* FROM Groups WHERE ' +
+    'Groups.idGroups NOT IN ' +
+    '(SELECT Groups.idGroups FROM Blocked ' +
+    `JOIN Groups ON Blocked.Groups_idGroups = Groups.idGroups WHERE Blocked.UserProfile_idUserProfile = '${req.params.user_id}');`;
+ 
+    
+    
+    utils.querySQL(sqlQuery,res);
+  } );
 
 //--------------------------------Get UserProfile information--------------------------//
 router.get('/user/:user_id?',(req,res)=>{
