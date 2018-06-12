@@ -12,6 +12,23 @@ router.get('/users',(req,res) =>{
   } )
 
 
+
+//------------------------------- List users to a given user --------------------------//
+
+router.get('/user/:user_id?/list/users',(req,res) =>{
+    const sqlQuery = 'SELECT UserProfile.* FROM UserProfile '+
+    'WHERE (UserProfile.idUserProfile NOT IN ' +
+    '(SELECT UserProfile.idUserProfile FROM BlockingUser ' +
+     'JOIN UserProfile ON BlockingUser.UserProfile_idUserProfile = UserProfile.idUserProfile ' +
+     ` WHERE BlockingUser.UserProfile_idUserProfile1 = '${req.params.user_id}')) AND (UserProfile.idUserProfile !='${req.params.user_id}');`;
+ 
+    
+    
+    utils.querySQL(sqlQuery,res);
+  } );
+
+
+
 //--------------------------------Get UserProfile information--------------------------//
 router.get('/user/:user_id?',(req,res)=>{
     utils.querySQL(`SELECT * FROM UserProfile WHERE idUserProfile = '${req.params.user_id}';`,res);
