@@ -28,7 +28,7 @@ function jsonBuilder(err){
 
 function queryTransaction(queries,res){
   connection.beginTransaction(function(err) {
-    if (err) { res.json(jsonBuilder(err)); }
+    if (err) { res.json(jsonBuilder(err));throw err; }
     else{
       partialQuery(queries,0,res);
     }
@@ -42,6 +42,7 @@ function partialQuery(queries,index,res){
       if (err) { 
         connection.rollback(function() {
         res.json(jsonBuilder(err));
+        throw err;
         });
       }
       index = index + 1;
@@ -52,6 +53,7 @@ function partialQuery(queries,index,res){
       if(err){
           connection.rollback(function(){
               res.json(jsonBuilder(err));
+              throw err;
           });
       }
       res.json(jsonBuilder(err));

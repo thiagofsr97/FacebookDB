@@ -78,12 +78,10 @@ router.get('/user/:user_id?/feed',(req,res)=>{
     `INNER JOIN Friendship ON (Friendship.UserProfile_idUserProfile1 = '${req.params.user_id}') ` +
     'WHERE (Friendship.UserProfile_idUserProfile = Post.UserProfile_idUserProfile_postOwner AND Post.UserProfileMural_idUserProfile = Post.UserProfile_idUserProfile_postOwner)) ';
 
-    const sqlQuery_3 = 'UNION (SELECT Post.* FROM Post WHERE Post.Visibility = 1 AND Post.UserProfile_idUserProfile_postOwner = Post.UserProfileMural_idUserProfile) ';
-
-    const sqlQuery_4 = `UNION (SELECT Post.* FROM Post WHERE Post.UserProfileMural_idUserProfile = '${req.params.user_id}') `;
+    const sqlQuery_3 = `UNION (SELECT Post.* FROM Post WHERE Post.UserProfileMural_idUserProfile = '${req.params.user_id}') `;
 
     const sortedBy = 'ORDER BY idPost DESC;'
-    utils.querySQL(sqlQuery_1 + sqlQuery_2 + sqlQuery_3 + sqlQuery_4 + sortedBy,res);
+    utils.querySQL(sqlQuery_1 + sqlQuery_2 + sqlQuery_3 + sortedBy,res);
 
 
 });

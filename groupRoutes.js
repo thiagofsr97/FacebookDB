@@ -45,6 +45,17 @@ router.post('/group/:group_id?/update-bg',(req,res)=>{
     utils.querySQL(sqlQuery,res);
   })
 
+
+  //--------------------------- Get users that are blocked from a given group -------------------------//
+  router.get('/group/:id?/members/blocked',(req,res) =>{
+    sqlQuery = 'SELECT UserProfile.* '+
+    'FROM Blocked ' +
+    'JOIN UserProfile on UserProfile.idUserProfile = Blocked.UserProfile_idUserProfile '+
+    'WHERE Blocked.Groups_idGroups=' + req.params.id;
+    utils.querySQL(sqlQuery,res);
+  })
+
+
 //--------------------------- Get admin users from a group -------------------------//
 router.get('/group/:id?/admins',(req,res) =>{
   const sqlQuery = 'SELECT UserProfile.* '+
