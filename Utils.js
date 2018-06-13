@@ -28,21 +28,20 @@ function jsonBuilder(err){
 
 function queryTransaction(queries,res){
   connection.beginTransaction(function(err) {
-    if (err) { throw err; }
-    partialQuery(queries,0,res);
+    if (err) { res.json(jsonBuilder(err)); }
+    else{
+      partialQuery(queries,0,res);
+    }
 
   });
 }
 
 function partialQuery(queries,index,res){
-  console.log('Size ' + queries.length);
   if(index < queries.length){
-    console.log('Index' + index);
     connection.query(queries[index],function(err, result) {
       if (err) { 
         connection.rollback(function() {
         res.json(jsonBuilder(err));
-        throw err;
         });
       }
       index = index + 1;
@@ -53,7 +52,6 @@ function partialQuery(queries,index,res){
       if(err){
           connection.rollback(function(){
               res.json(jsonBuilder(err));
-              throw err;
           });
       }
       res.json(jsonBuilder(err));

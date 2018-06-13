@@ -169,4 +169,14 @@ router.get('/group/:id?/member/:user_id?/block',(req,res)=>{
   utils.queryTransaction([sqlQuery_1,sqlQuery_2,sqlQuery_3,sqlQuery_4],res);
 });
 
+//----------------------------------- Unblocking member of group ----------------------------//
+
+router.get('/group/:id?/member/:user_id?/unblock',(req,res)=>{
+  const group_id = req.params.id;
+  const user_blocked_id = req.params.user_id;
+  const sqlQuery = `DELETE FROM Blocked WHERE Groups_idGroups = '${group_id}' AND UserProfile_idUserProfile = '${user_blocked_id}';`;
+  utils.queryPost(sqlQuery,res);
+});
+
+
   module.exports = router;
