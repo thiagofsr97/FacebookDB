@@ -46,12 +46,6 @@ router.get('/user/:id?/allposts',(req,res)=>{
     utils.querySQL(sqlQuery,res);
   })
 
-
-router.get('/post/:post_id?/attachments/',(req,res)=>{
-    const post_id = req.params.post_id;
-    const sqlQuery = `SELECT Type,Path FROM Attachments WHERE Post_idPost = '${post_id}';`;
-    utils.querySQL(sqlQuery,res);
-});
 //----------------------------Get posts from a user's mural -------------------------//
 router.get('/user/:mural_user_id?/mural/posts',(req,res)=>{
     const mural_id = req.params.mural_user_id;
@@ -87,53 +81,26 @@ router.get('/user/:user_id?/feed',(req,res)=>{
 });
 
 
-  function doPost(location,id_user,id_mural,visibility,text,req,res){
-    var sqlQuery = '';
+function doPost(location,id_user,id_mural,visibility,text,req,res){
+    
+    var sqlQuery_2 = '';
     if(location == 'group'){
-        sqlQuery = 'INSERT INTO Post (Text, PostTime, NumberOfComments, Visibility, UserProfile_idUserProfile_postOwner,GroupsMural_idGroups,	NumberOfLikes) VALUES'
-    + `('${text}', '${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}','0', '${visibility}', '${id_user}','${id_mural}','0');`;
+    sqlQuery_2 = 'INSERT INTO Post (Text, PostTime, NumberOfComments, Visibility, UserProfile_idUserProfile_postOwner,GroupsMural_idGroups,	NumberOfLikes,Attachment_Path,Attachment_Type) VALUES';
     }else{
-        sqlQuery = 'INSERT INTO Post (Text, PostTime, NumberOfComments, Visibility, UserProfile_idUserProfile_postOwner,UserProfileMural_idUserProfile,	NumberOfLikes) VALUES'
-    + `('${text}', '${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}','0', '${visibility}', '${id_user}','${id_mural}','0');`;
+        sqlQuery_2 = 'INSERT INTO Post (Text, PostTime, NumberOfComments, Visibility, UserProfile_idUserProfile_postOwner,UserProfileMural_idUserProfile,NumberOfLikes,Attachment_Path,Attachment_Type) VALUES';    
     }
-    connection.beginTransaction(function(err) {
-        if (err) { throw err; }
-        connection.query(sqlQuery, function(err, result) {
-          if (err) {
-            connection.rollback(function() {
-                res.json(utils.jsonBuilder(err));
-                throw err;
-            });
-          }
 
-          if(req.body.attachment_type != undefined && req.body.attachment_path!=undefined){
-              var id_post = result.insertId;
-            sqlQuery = 'INSERT INTO Attachments (Type, Path, Post_idPost, Post_UserProfile_idUserProfile)' +
-                `VALUES ('${req.body.attachment_type}','${req.body.attachment_path}','${id_post}','${id_user}')`;
+    if(req.body.attachment_path!=undefined && req.body.attachment_type!=undefined){
+        sqlQuery_2 += ` ('${text}', '${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}','0', '${visibility}', '${id_user}','${id_mural}','0','${req.body.attachment_path}','${req.body.attachment_type}');`;
 
-            connection.query(sqlQuery,function(err,result){
-                if(err){
-                    connection.rollback(function(err,result) {
-                        res.json(utils.jsonBuilder(err));
-                        throw err;
-                    });
-
-                }
-
-            })
-          }
-          connection.commit(function(err){
-            if (err) {
-                connection.rollback(function() {
-                  throw err;
-                });
-              }
-              res.json(utils.jsonBuilder(err));
-              console.log('Transaction Complete.');
-          });
-        });
-    });
-  }
+    }
+    else{
+        sqlQuery_2 += ` ('${text}', '${moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')}','0', '${visibility}', '${id_user}','${id_mural}','0',NULL,NULL);`
+        
+    }
+   
+    utils.queryPost(sqlQuery_2,res);
+}
 
 //------------------------------- Change post's visibility in user's mural----------------------------------------//
 
@@ -143,5 +110,14 @@ router.post('/post/:post_id?/visibility',(req,res)=>{
     utils.queryPost(sqlQuery,res);
 });
 
+router.get('/post/:post_id?/like',(req,res)=>{
+        const sqlQuery = `UPDATE Post SET NumberOfLikes = NumberOfLikes + 1 WHERE idPost = '${req.params.post_id}';`;
+        utils.queryPost(sqlQuery,res);
+    });
+
+    router.get('/post/:post_id?/dislike',(req,res)=>{
+        const sqlQuery = `UPDATE Post SET NumberOfLikes = NumberOfLikes - 1 WHERE idPost = '${req.params.post_id}';`;
+        utils.queryPost(sqlQuery,res);
+    });
 
   module.exports = router;
